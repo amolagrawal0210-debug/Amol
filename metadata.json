@@ -1,0 +1,5 @@
+{
+  "name": "VocalVibe India",
+  "description": "A Cyberpunk-styled Text-to-Speech generator specialized in Indian English and Hindi accents using Gemini 2.5.",
+  "requestFramePermissions": []
+}
