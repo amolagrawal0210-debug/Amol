@@ -1,5 +1,10 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 
+const API_KEY = process.env.API_KEY || '';
+
+// Initialize client
+const ai = new GoogleGenAI({ apiKey: API_KEY });
+
 /**
  * Writes a string to a DataView for WAV header construction.
  */
@@ -64,15 +69,11 @@ const VOICE_MAP: Record<string, string> = {
  * @param userText The text to speak
  * @param voiceName The specific voice model to use
  * @param accent The desired accent/style
- * @param apiKey The user's Gemini API Key
  */
-export const generateSpeech = async (userText: string, voiceName: string, accent: AccentType, apiKey: string): Promise<string> => {
-  if (!apiKey) {
-    throw new Error("API Key is missing. Please enter your key in settings.");
+export const generateSpeech = async (userText: string, voiceName: string = 'Kore', accent: AccentType = 'Hinglish'): Promise<string> => {
+  if (!API_KEY) {
+    throw new Error("API Key is missing.");
   }
-
-  // Initialize client dynamically with the user's key
-  const ai = new GoogleGenAI({ apiKey: apiKey });
 
   // 1. Determine Base Style Instruction based on Accent (Optimized for speed/brevity)
   let styleInstruction = "";
@@ -160,10 +161,6 @@ export const generateSpeech = async (userText: string, voiceName: string, accent
 
   } catch (error: any) {
     console.error("Gemini TTS Error:", error);
-    // Handle invalid key errors specifically
-    if (error.message?.includes('400') || error.message?.includes('API key')) {
-         throw new Error("Invalid API Key. Please check your settings.");
-    }
     throw new Error(error.message || "Failed to generate audio.");
   }
 };
