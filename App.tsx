@@ -1,16 +1,39 @@
-import React, { useState } from 'react';
-import { Mic, Zap, Sparkles, AlertCircle, Settings2, User, Globe } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mic, Zap, Sparkles, AlertCircle, Settings2, User, Globe, Key } from 'lucide-react';
 import { generateSpeech, AccentType } from './services/geminiService';
 import { AudioPlayer } from './components/AudioPlayer';
 import { CyberDropdown, DropdownOption, DropdownGroup } from './components/CyberDropdown';
+import { ApiKeyModal } from './components/ApiKeyModal';
 
 const App = () => {
+  // Try to get key from localStorage first, then env (for local dev), then empty
+  const [apiKey, setApiKey] = useState<string>(() => {
+    return localStorage.getItem('vocalvibe_api_key') || process.env.API_KEY || '';
+  });
+  
   const [text, setText] = useState('');
   const [voice, setVoice] = useState('Kore');
   const [accent, setAccent] = useState<AccentType>('Hinglish');
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showKeySettings, setShowKeySettings] = useState(false);
+
+  // Clear URL if key changes
+  useEffect(() => {
+    setAudioUrl(null);
+  }, [apiKey]);
+
+  const handleSaveKey = (key: string) => {
+    setApiKey(key);
+    localStorage.setItem('vocalvibe_api_key', key);
+    setShowKeySettings(false);
+  };
+
+  const clearKey = () => {
+    localStorage.removeItem('vocalvibe_api_key');
+    setApiKey('');
+  };
 
   const voiceOptions: (DropdownOption | DropdownGroup)[] = [
     {
@@ -42,16 +65,24 @@ const App = () => {
 
   const handleGenerate = async () => {
     if (!text.trim()) return;
+    if (!apiKey) {
+        setShowKeySettings(true);
+        return;
+    }
 
     setIsLoading(true);
     setError(null);
     setAudioUrl(null);
 
     try {
-      const url = await generateSpeech(text, voice, accent);
+      const url = await generateSpeech(text, voice, accent, apiKey);
       setAudioUrl(url);
     } catch (err: any) {
       setError(err.message || 'Transmission failed. Retrying grid connection...');
+      if (err.message.includes('API Key')) {
+          // If the key is invalid, prompt to enter again
+          setTimeout(() => setShowKeySettings(true), 2000);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -60,6 +91,11 @@ const App = () => {
   return (
     <div className="min-h-screen bg-midnight text-white selection:bg-neon-pink selection:text-white overflow-x-hidden font-sans relative flex flex-col">
       
+      {/* Show Modal if no key is present or user requested settings */}
+      {(!apiKey || showKeySettings) && (
+        <ApiKeyModal onSave={handleSaveKey} />
+      )}
+
       {/* Ambient Background Elements */}
       <div className="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-neon-purple/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="fixed bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-neon-cyan/20 rounded-full blur-[120px] pointer-events-none" />
@@ -68,11 +104,23 @@ const App = () => {
       <main className="relative max-w-3xl mx-auto px-6 py-12 flex flex-col gap-8 z-10 flex-grow w-full">
         
         {/* Header */}
-        <header className="text-center space-y-4 animate-slide-up">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
-            <span className={`w-2 h-2 rounded-full ${isLoading ? 'bg-yellow-400 animate-ping' : 'bg-green-500 animate-pulse'}`}></span>
-            <span className="text-xs tracking-widest text-gray-400 uppercase">System Online v2.5</span>
+        <header className="relative text-center space-y-4 animate-slide-up">
+          <div className="flex justify-center items-center gap-4">
+             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm">
+                <span className={`w-2 h-2 rounded-full ${isLoading ? 'bg-yellow-400 animate-ping' : 'bg-green-500 animate-pulse'}`}></span>
+                <span className="text-xs tracking-widest text-gray-400 uppercase">System Online v2.5</span>
+             </div>
+             
+             {/* Key Management Button */}
+             <button 
+                onClick={() => setShowKeySettings(true)}
+                className="absolute right-0 top-0 p-2 text-gray-500 hover:text-neon-cyan transition-colors"
+                title="Update API Key"
+             >
+                <Settings2 className="w-5 h-5" />
+             </button>
           </div>
+
           <h1 className="text-5xl md:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
             Vocal<span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-pink to-neon-cyan">Vibe</span>
           </h1>
@@ -212,6 +260,11 @@ const App = () => {
                <span>•</span>
                <span>React 19</span>
             </div>
+            {apiKey && (
+              <div className="pointer-events-auto mt-2">
+                 <button onClick={clearKey} className="text-[10px] text-red-900 hover:text-red-500 transition-colors uppercase tracking-widest font-bold">Disconnect Key</button>
+              </div>
+            )}
         </div>
       </footer>
     </div>
