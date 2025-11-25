@@ -53,6 +53,17 @@ const pcmToWav = (pcmData: Uint8Array, sampleRate: number = 24000, numChannels: 
 
 export type AccentType = 'Indian' | 'Hinglish' | 'American' | 'British' | 'Cybernetic';
 
+// Map UI Voice IDs to Gemini API Voice Names
+const VOICE_MAP: Record<string, string> = {
+  'Kore': 'Kore',
+  'Fenrir': 'Fenrir',
+  'Puck': 'Puck',
+  'Charon': 'Charon',
+  'Zephyr': 'Zephyr',
+  'RaviShastri': 'Fenrir', // Uses Fenrir as base
+  'AakashChopra': 'Fenrir' // Uses Fenrir as base
+};
+
 /**
  * Generates speech from text using Gemini 2.5 Flash TTS.
  * @param userText The text to speak
@@ -64,37 +75,44 @@ export const generateSpeech = async (userText: string, voiceName: string = 'Kore
     throw new Error("API Key is missing.");
   }
 
-  // Construct Prompt based on Accent
+  // 1. Determine Base Style Instruction based on Accent (Optimized for speed/brevity)
   let styleInstruction = "";
   
   switch (accent) {
     case 'Hinglish':
-      styleInstruction = "Speak with a casual, trendy Indian accent. Mix Hindi and English intonations naturally (Hinglish). Use a youthful, conversational tone.";
+      styleInstruction = "Accent: Casual Hinglish. Tone: Youthful Indian.";
       break;
     case 'Indian':
-      styleInstruction = "Speak with a professional, clear, and formal Indian English accent. Articulate words precisely.";
+      styleInstruction = "Accent: Professional Indian English. Tone: Formal.";
       break;
     case 'American':
-      styleInstruction = "Speak with a standard General American accent. Keep the tone neutral and broadcast-quality.";
+      styleInstruction = "Accent: General American. Tone: Neutral Broadcast.";
       break;
     case 'British':
-      styleInstruction = "Speak with a Received Pronunciation (RP) British English accent. Keep the tone sophisticated and polished.";
+      styleInstruction = "Accent: British RP. Tone: Polished.";
       break;
     case 'Cybernetic':
-      styleInstruction = "Speak with a flat, slightly robotic, and futuristic cadence. Minimize emotional range to sound like an AI assistant.";
+      styleInstruction = "Accent: Robotic. Tone: Flat, Emotionless AI.";
       break;
     default:
-      styleInstruction = "Speak clearly and naturally.";
+      styleInstruction = "Speak naturally.";
   }
 
-  // Additional override for specific "Characters" if needed, though voiceName handles pitch/timbre.
-  if (voiceName === 'Puck') {
-    styleInstruction += " Maintain an energetic, higher-pitched, and enthusiastic tone.";
+  // 2. Apply Specific Voice Persona Overrides (Prompt engineered for identity)
+  if (voiceName === 'RaviShastri') {
+    styleInstruction = "IMPERSONATE: Ravi Shastri (Cricket Commentator). Style: High energy, booming voice, electric enthusiasm. Accent: Loud Indian English.";
+  } else if (voiceName === 'AakashChopra') {
+    styleInstruction = "IMPERSONATE: Aakash Chopra (Cricket Commentator). Style: Poetic, flowery, dramatic Hindi/Hinglish. Rhythm: Commentary cadence.";
+  } else if (voiceName === 'Puck') {
+    styleInstruction += " Tone: Playful, High-pitched.";
   } else if (voiceName === 'Charon') {
-    styleInstruction += " Maintain a deep, gravelly, and serious tone.";
+    styleInstruction += " Tone: Deep, Gravelly.";
   }
 
-  const fullPrompt = `System Instruction: ${styleInstruction}\n\nText to Speak: ${userText}`;
+  const fullPrompt = `System: ${styleInstruction}\nInput: ${userText}`;
+
+  // 3. Resolve actual API voice name
+  const apiVoiceName = VOICE_MAP[voiceName] || 'Kore';
 
   try {
     const response = await ai.models.generateContent({
@@ -109,7 +127,7 @@ export const generateSpeech = async (userText: string, voiceName: string = 'Kore
         speechConfig: {
           voiceConfig: {
             prebuiltVoiceConfig: {
-              voiceName: voiceName 
+              voiceName: apiVoiceName 
             }
           }
         }
