@@ -1,9 +1,8 @@
 import { GoogleGenAI, Modality } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || '';
-
 // Initialize client
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+// Fixed: Use process.env.API_KEY directly as per SDK guidelines
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
  * Writes a string to a DataView for WAV header construction.
@@ -71,7 +70,7 @@ const VOICE_MAP: Record<string, string> = {
  * @param accent The desired accent/style
  */
 export const generateSpeech = async (userText: string, voiceName: string = 'Kore', accent: AccentType = 'Hinglish'): Promise<string> => {
-  if (!API_KEY) {
+  if (!process.env.API_KEY) {
     throw new Error("API Key is missing. Ensure it is set in your .env file or GitHub Secrets.");
   }
 

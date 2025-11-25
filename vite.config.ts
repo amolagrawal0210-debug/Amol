@@ -11,18 +11,19 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     base: './', 
     server: {
-      host: '0.0.0.0', // Required for Docker/Hugging Face
-      port: 7860,      // Standard Hugging Face Space port
-      strictPort: true,
-      allowedHosts: true, // Allow incoming connections from HF domains
+      host: '0.0.0.0', // CRITICAL: Must bind to 0.0.0.0 for Docker networking to work
+      port: 7860,      // CRITICAL: Standard Hugging Face Space port
+      strictPort: true, 
+      // Removed 'allowedHosts' as it can cause issues on older Vite versions; 
+      // host: 0.0.0.0 is sufficient for this setup.
+      cors: true,
     },
     preview: {
       host: '0.0.0.0',
       port: 7860,
-      allowedHosts: true,
     },
     define: {
-      // Maps process.env.API_KEY to the environment variable present at runtime/build-time
+      // Maps process.env.API_KEY to the environment variable present at runtime
       'process.env.API_KEY': JSON.stringify(env.API_KEY)
     }
   };
