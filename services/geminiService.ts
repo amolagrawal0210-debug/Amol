@@ -72,7 +72,7 @@ const VOICE_MAP: Record<string, string> = {
  */
 export const generateSpeech = async (userText: string, voiceName: string = 'Kore', accent: AccentType = 'Hinglish'): Promise<string> => {
   if (!API_KEY) {
-    throw new Error("API Key is missing.");
+    throw new Error("API Key is missing. Ensure it is set in your .env file or GitHub Secrets.");
   }
 
   // 1. Determine Base Style Instruction based on Accent (Optimized for speed/brevity)
