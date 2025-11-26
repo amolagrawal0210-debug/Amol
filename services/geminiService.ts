@@ -66,8 +66,9 @@ const VOICE_MAP: Record<string, string> = {
  * @param accent The desired accent/style
  */
 export const generateSpeech = async (userText: string, voiceName: string = 'Kore', accent: AccentType = 'Hinglish'): Promise<string> => {
+  // Check specifically for the injected key
   if (!process.env.API_KEY) {
-    throw new Error("API Key is missing. Ensure it is set in your .env file or Vercel Environment Variables.");
+    throw new Error("API Key is missing. Please check your Vercel Environment Variables (Settings > Environment Variables) and ensure 'API_KEY' is added.");
   }
 
   // Initialize client here to prevent app crash on load if key is missing/undefined
