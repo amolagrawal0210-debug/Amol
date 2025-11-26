@@ -28,6 +28,7 @@ const App = () => {
         { value: "Charon", label: "Charon (Alien/Villain | Deep)" },
         { value: "RaviShastri", label: "Ravi Shastri (Commentator)", className: "text-neon-cyan font-semibold" },
         { value: "AakashChopra", label: "Aakash Chopra (Hindi Poet)", className: "text-neon-pink font-semibold" },
+        { value: "GautamGambhir", label: "Gautam Gambhir (Intense | Blunt)", className: "text-neon-purple font-semibold" },
       ]
     }
   ];

@@ -56,7 +56,8 @@ const VOICE_MAP: Record<string, string> = {
   'Charon': 'Charon',
   'Zephyr': 'Zephyr',
   'RaviShastri': 'Fenrir', // Uses Fenrir as base
-  'AakashChopra': 'Fenrir' // Uses Fenrir as base
+  'AakashChopra': 'Fenrir', // Uses Fenrir as base
+  'GautamGambhir': 'Fenrir' // Uses Fenrir as base for deep/serious tone
 };
 
 /**
@@ -105,6 +106,8 @@ export const generateSpeech = async (userText: string, voiceName: string = 'Kore
     styleInstruction = "IMPERSONATE: Ravi Shastri (Cricket Commentator). Style: High energy, booming voice, electric enthusiasm. Accent: Loud Indian English.";
   } else if (voiceName === 'AakashChopra') {
     styleInstruction = "IMPERSONATE: Aakash Chopra (Cricket Commentator). Style: Poetic, flowery, dramatic Hindi/Hinglish. Rhythm: Commentary cadence.";
+  } else if (voiceName === 'GautamGambhir') {
+    styleInstruction = "IMPERSONATE: Gautam Gambhir. Style: Serious, intense, blunt, no-nonsense. Tone: Low-pitch, grave, critical, aggressive. Accent: Delhi Indian English/Hindi mix. Delivery: Direct.";
   } else if (voiceName === 'Puck') {
     styleInstruction += " Tone: Playful, High-pitched.";
   } else if (voiceName === 'Charon') {
