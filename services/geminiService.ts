@@ -50,7 +50,7 @@ const pcmToWav = (pcmData: Uint8Array, sampleRate: number = 24000, numChannels: 
   return wavBuffer;
 };
 
-export type AccentType = 'Indian' | 'Hinglish' | 'American' | 'British' | 'Cybernetic';
+export type AccentType = 'Indian' | 'Hinglish' | 'American' | 'British' | 'Cybernetic' | 'Hindi';
 
 // Map UI Voice IDs to Gemini API Voice Names
 const VOICE_MAP: Record<string, string> = {
@@ -83,6 +83,9 @@ export const generateSpeech = async (userText: string, voiceName: string = 'Kore
       break;
     case 'Indian':
       styleInstruction = "Accent: Professional Indian English. Tone: Formal.";
+      break;
+    case 'Hindi':
+      styleInstruction = "Language: Pure Hindi. Accent: Standard Indian. Tone: Formal, Professional, Broadcast Quality.";
       break;
     case 'American':
       styleInstruction = "Accent: General American. Tone: Neutral Broadcast.";

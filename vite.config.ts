@@ -1,31 +1,30 @@
-// vite.config.ts (Modified)
-
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load environment variables for the current mode
-  const env = loadEnv(mode, process.cwd(), '');
+  // Load env file based on `mode` in the current working directory.
+  // This allows access to system environment variables (like configured in HF Spaces)
+  const env = loadEnv(mode, '.', '');
 
   return {
     plugins: [react()],
-    
+    base: './', 
     server: {
-      // CRITICAL: Must bind to 0.0.0.0 for Docker container networking to work
-      // You already have this set correctly.
-      host: '0.0.0.0', 
-      port: 7860, // Ensure the port is 7860 for Hugging Face Spaces
-
-      // FIX: Add the specific Hugging Face Space host to allowedHosts
-      // This resolves the "Blocked request" error shown in the browser.
-      allowedHosts: [
-        'amol7896-vocalvibe-india.hf.space'
-      ],
-
-      // This is often not strictly needed if 'host' is 0.0.0.0 but is good practice.
-      strictPort: true 
+      host: '0.0.0.0', // CRITICAL: Must bind to 0.0.0.0 for Docker networking to work
+      port: 7860,      // CRITICAL: Standard Hugging Face Space port
+      strictPort: true, 
+      // Removed 'allowedHosts' as it can cause issues on older Vite versions; 
+      // host: 0.0.0.0 is sufficient for this setup.
+      cors: true,
     },
-    
-    // ... rest of your configuration (build, define, etc.)
+    preview: {
+      host: '0.0.0.0',
+      port: 7860,
+    },
+    define: {
+      // Maps process.env.API_KEY to the environment variable present at runtime
+      'process.env.API_KEY': JSON.stringify(env.API_KEY)
+    }
   };
 });

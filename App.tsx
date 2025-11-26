@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mic, Zap, Sparkles, AlertCircle, Settings2, User, Globe } from 'lucide-react';
+import { Mic, Zap, Sparkles, AlertCircle, Settings2, User, Globe, Loader2 } from 'lucide-react';
 import { generateSpeech, AccentType } from './services/geminiService';
 import { AudioPlayer } from './components/AudioPlayer';
 import { CyberDropdown, DropdownOption, DropdownGroup } from './components/CyberDropdown';
@@ -35,6 +35,7 @@ const App = () => {
   const accentOptions: DropdownOption[] = [
     { value: "Hinglish", label: "Hinglish (Casual Mixed)" },
     { value: "Indian", label: "Indian English (Formal)" },
+    { value: "Hindi", label: "Indian Hindi (Formal)" },
     { value: "American", label: "American English (General)" },
     { value: "British", label: "British English (RP)" },
     { value: "Cybernetic", label: "Cybernetic (Robotic/Flat)" },
@@ -146,30 +147,33 @@ const App = () => {
             onClick={handleGenerate}
             disabled={isLoading || !text.trim()}
             className={`
-              relative group w-full min-h-[70px] overflow-hidden rounded-xl transition-all duration-300 flex items-center justify-center
-              ${isLoading ? 'opacity-90 cursor-wait' : 'hover:scale-[1.01] cursor-pointer'}
+              relative group w-full min-h-[70px] overflow-hidden rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg
+              ${isLoading ? 'cursor-wait' : 'hover:scale-[1.01] cursor-pointer hover:shadow-neon-cyan/20'}
             `}
           >
             {/* Button Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan via-purple-600 to-neon-pink opacity-90 group-hover:opacity-100 transition-opacity" />
+            <div className={`absolute inset-0 bg-gradient-to-r from-neon-cyan via-purple-600 to-neon-pink opacity-90 transition-all duration-500 
+                ${isLoading ? 'bg-[length:200%_200%] animate-pulse' : 'group-hover:opacity-100'}`} 
+            />
             
-            {/* Button Glow */}
-            <div className={`absolute inset-0 blur-xl bg-neon-pink opacity-0 group-hover:opacity-60 transition-opacity duration-500 ${isLoading ? 'animate-pulse opacity-50' : ''}`} />
+            {/* Cyber Grid Overlay (Optional texture) */}
+             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
 
-            <div className="relative flex items-center gap-3">
+            {/* Content Container */}
+            <div className="relative flex items-center gap-3 z-10">
               {isLoading ? (
                 <>
-                  <div className="flex gap-1.5">
-                    <div className="w-1 h-6 bg-black/80 animate-[pulse_0.6s_ease-in-out_infinite] rounded-full"></div>
-                    <div className="w-1 h-6 bg-black/80 animate-[pulse_0.6s_ease-in-out_0.2s_infinite] rounded-full"></div>
-                    <div className="w-1 h-6 bg-black/80 animate-[pulse_0.6s_ease-in-out_0.4s_infinite] rounded-full"></div>
-                  </div>
-                  <span className="text-black font-bold uppercase tracking-widest text-sm md:text-base pl-2">Synthesizing Audio...</span>
+                  <Loader2 className="w-6 h-6 text-black animate-spin" />
+                  <span className="text-black font-bold uppercase tracking-widest text-lg pl-1">
+                    Synthesizing<span className="animate-pulse">...</span>
+                  </span>
                 </>
               ) : (
                 <>
-                  <Zap className="w-6 h-6 text-black fill-black" />
-                  <span className="text-black font-bold uppercase tracking-widest text-lg">Initialize Synthesis</span>
+                  <Zap className="w-6 h-6 text-black fill-black group-hover:scale-110 transition-transform duration-300" />
+                  <span className="text-black font-bold uppercase tracking-widest text-lg group-hover:tracking-[0.15em] transition-all duration-300">
+                    Initialize Synthesis
+                  </span>
                 </>
               )}
             </div>
